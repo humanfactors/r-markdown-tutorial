@@ -1,0 +1,30 @@
+---
+title: "Inline Code with Rmarkdown"
+author: "Michael Wilson"
+date: "14 November 2017"
+output:
+  word_document:
+    reference_docx: assets/apa.docx
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r data, include=T}
+# Setting up some fake data for analysis
+responsetimes <- rnorm(400, mean = 600, sd = 120)
+age <- sample(19:90, 40, replace=T)
+gender <- sample(letters[c(6,13)], 40, TRUE)
+```
+
+## Simple Inline Analysis
+
+Evaluate `r 2*2` 
+
+The average age of the participants was `r round(mean(age), 2)`, and `r length(which(gender == "m"))` were male while `r round(length(which(gender == "f")),2)` were female. The median response time was `r round(median(responsetimes),3)` and the average response time was `r mean(responsetimes)`.
+
+We could also evaluate other expressions, like multiple 6 by 66 `r 6*66`, or even get pi `r pi`.
+
+<!-- Now have a go at getting the minimum, maximum of ages. -->

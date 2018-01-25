@@ -1,0 +1,65 @@
+---
+title: 'Knitr: Chopstick Data'
+output:
+  html_document: default
+  word_document:
+    reference_docx: assets/apa.docx
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(apa)
+library(reshape2)
+library(psych)
+library(ggplot2)
+```
+
+## Introduction
+
+What is the optimum length of chopsticks usable by adults? We will be using the "optimum length of chopsticks" data set where researchers set out to determine the optimal length of chopsticks for children and adults. They came up with a measure of how effective a pair of chopsticks performed, called the "Food Pinching Performance." The "Food Pinching Performance" was determined by counting the number of peanuts picked and placed in a cup (PPPC).
+
+## Results
+
+```{r dataimport, include=FALSE}
+# Load the chopstick data
+chopstickdata <- read.csv("data/chopstickdata.csv")
+# Also get it in wide form for later use
+chopstickdata.wide <- dcast(chopstickdata, Subject ~ ChopstickLength, value.var="FoodPinchingEff")
+# Get the descriptives for each ChopstickLength. The [1:6,] just cuts off unused variables.
+csdescriptives <- describeBy(chopstickdata, group = chopstickdata$ChopstickLength, mat = T,)[1:6,]
+# Clear the rownames (as we won't use)
+row.names(csdescriptives) <- c()
+# Get the variables we are interested in
+csdescriptives <- csdescriptives[,c("group1",	"n",	"mean",	"sd",	"range")]
+```
+
+Our main table is below.
+
+```{r csdescriptives, include=TRUE, echo=FALSE}
+knitr::kable(csdescriptives)
+```
+
+
+```{r plot, eval=TRUE, echo=FALSE}
+ggplot(data = chopstickdata,
+       aes(as.factor(ChopstickLength),FoodPinchingEff)) +
+geom_boxplot(aes(color=as.factor(ChopstickLength))) + theme(legend.title=element_blank()) + geom_jitter(width = 0.2, alpha=0.2)
+```
+
+### Hypothesis Testing
+```{r hypothesissetup, include=FALSE}
+ttest1 <- t.test(chopstickdata.wide$`240`, chopstickdata.wide$`270`, paired=T)
+ttest2 <- t.test(chopstickdata.wide$`240`, chopstickdata.wide$`300`, paired=T)
+ttest3 <- t.test(chopstickdata.wide$`270`, chopstickdata.wide$`300`, paired=T)
+```
+
+The 240mm was associated with a signficantly higher Food Pinching Efficiency than the 270mm, 
+`r t_apa(ttest1, es = "cohens_d", format = "markdown", print = FALSE)`.
+Similiarly, the 240mm was signficantly better than the 300mm, 
+`r t_apa(ttest2, es = "cohens_d", format = "markdown", print = FALSE)`.
+However, there was no difference in Food Pinching Efficiency between the 240mm and 270mm, 
+`r t_apa(ttest3, es = "cohens_d", format = "markdown", print = FALSE)`.
+
+
+
+

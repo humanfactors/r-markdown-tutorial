@@ -1,0 +1,53 @@
+---
+title: 'RNotebook: Chopstick Data'
+output:
+  html_notebook: default
+---
+
+## Introduction to R Notebooks
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+
+## Our Example: Chopstick Length
+What is the optimum length of chopsticks usable by adults? We will be using the "optimum length of chopsticks" data set where researchers set out to determine the optimal length of chopsticks for children and adults. They came up with a measure of how effective a pair of chopsticks performed, called the "Food Pinching Performance." The "Food Pinching Performance" was determined by counting the number of peanuts picked and placed in a cup (PPPC).
+
+## Understanding the Data
+
+First, let's take a look at the descriptive statistics of our chopstick data, as you did above, 
+
+```{r}
+library(reshape2)
+library(psych)
+library(ggplot2)
+# Load the chopstick data
+chopstickdata <- read.csv("data/chopstickdata.csv")
+# Also get it in wide form for later use
+chopstickdata.wide <- dcast(chopstickdata, Subject ~ ChopstickLength, value.var="FoodPinchingEff")
+
+# Get the descriptives for each ChopstickLength. The [1:6,] just cuts off unused variables.
+csdescriptives <- describeBy(chopstickdata, group = chopstickdata$ChopstickLength, mat = T)[1:6,]
+# Get the variables we are interested in
+csdescriptives <- csdescriptives[,c("group1",	"n",	"mean",	"sd",	"range")]
+csdescriptives
+```
+
+### Plot of Differences
+
+```{r}
+ggplot(data = chopstickdata,
+       aes(as.factor(ChopstickLength),FoodPinchingEff)) +
+geom_boxplot(aes(color=as.factor(ChopstickLength))) + theme(legend.title=element_blank()) + geom_jitter(width = 0.2, alpha=0.2)
+
+```
+
+### T-tests
+Now imagine you own a Japanese restarunt and have a choice between chopsticks of 240mm, 270mm or 300mm. How do you determine which you should buy?
+
+```{r}
+t.test(chopstickdata.wide$`240`, chopstickdata.wide$`270`, paired=T)
+t.test(chopstickdata.wide$`240`, chopstickdata.wide$`300`, paired=T)
+t.test(chopstickdata.wide$`270`, chopstickdata.wide$`300`, paired=T)
+```
+
